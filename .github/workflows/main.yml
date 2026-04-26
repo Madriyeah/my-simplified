@@ -1,15 +1,17 @@
-name: Auto Update KSA Sports
+name: Auto Update
 on:
   schedule:
-    - cron: '0 * * * *' # Runs every 60 minutes
-  workflow_dispatch: # Allows you to run it manually
+    - cron: '0 * * * *'
+  workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # THIS IS THE KEY PART
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.x'
       - name: Install dependencies
@@ -18,8 +20,8 @@ jobs:
         run: python update.py
       - name: Commit and push changes
         run: |
-          git config --global user.name "IPTV-Bot"
-          git config --global user.email "bot@github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add *.m3u8
-          git commit -m "Updated stream token" || exit 0
-          git push
+          git commit -m "Update links" || exit 0
+          git push origin main
