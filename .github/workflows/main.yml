@@ -1,27 +1,32 @@
-name: Update Link
+name: Update M3U8 Link
 on:
   schedule:
-    - cron: "0 */3 * * *" # Runs every 3 hours
-  workflow_dispatch:      # Lets you trigger it manually
+    - cron: '0 */3 * * *'
+  workflow_dispatch:
 
 permissions:
-  contents: write         # THIS IS REQUIRED TO SAVE THE FILE
+  contents: write
 
 jobs:
-  update:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          python-version: '3.9'
-      - name: Install dependencies
-        run: pip install requests
-      - name: Run Script
-        run: python update.py
-      - name: Commit changes
+          node-version: '20'
+
+      - name: Install Puppeteer
+        run: npm install puppeteer
+
+      - name: Extract Link
+        run: node update.js
+
+      - name: Commit and push
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Updated stream token"
+          commit_message: "Auto-update token"
+          file_pattern: 'playlist.m3u8'
 
