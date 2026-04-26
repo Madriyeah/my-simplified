@@ -1,0 +1,25 @@
+name: Auto Update KSA Sports
+on:
+  schedule:
+    - cron: '0 * * * *' # Runs every 60 minutes
+  workflow_dispatch: # Allows you to run it manually
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: pip install requests
+      - name: Run scraper
+        run: python update.py
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "IPTV-Bot"
+          git config --global user.email "bot@github.com"
+          git add playlist.m3u
+          git commit -m "Updated stream token" || exit 0
+          git push
