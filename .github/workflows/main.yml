@@ -1,18 +1,19 @@
 name: Update M3U8 Link
 on:
   schedule:
-    - cron: '0 */3 * * *'
-  workflow_dispatch:
+    - cron: '0 */3 * * *'  # Runs every 3 hours
+  workflow_dispatch:      # Allows manual testing
 
 permissions:
-  contents: write
+  contents: write         # Crucial for saving the playlist.m3u8 file
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -21,12 +22,11 @@ jobs:
       - name: Install Puppeteer
         run: npm install puppeteer
 
-      - name: Extract Link
+      - name: Run Extraction Script
         run: node update.js
 
-      - name: Commit and push
+      - name: Commit and Push
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Auto-update token"
+          commit_message: "Auto-update token via Puppeteer"
           file_pattern: 'playlist.m3u8'
-
