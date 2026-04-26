@@ -1,33 +1,31 @@
 import requests
 import re
 
-# The official KSA Sports 1 live page
-URL = "https://www.aloula.sa/en/live/ksa-sports1"
+# List of channels to scrape
+channels = [
+    {"name": "KSA Sports 1", "url": "https://aloula.sa"},
+    {"name": "Rotana Khalejia", "url": "https://rotana.net"} 
+]
 
-def get_ksa_link():
+def get_live_link(url):
     try:
-        # Use a real User-Agent to avoid being blocked
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
-        response = requests.get(URL, headers=headers, timeout=15)
-        
-        # Regex to find the kwikmotion .m3u8 link including the token
-        match = re.search(r'https://live\.kwikmotion\.com/[^"\']+\.m3u8[^"\']*', response.text)
-        
-        if match:
-            return match.group(0)
-    except Exception as e:
-        print(f"Error: {e}")
-    return None
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        response = requests.get(url, headers=headers, timeout=15)
+        # Finds m3u8 links with tokens (Kwikmotion, Bozztv, etc.)
+        match = re.search(r'https?://[^\s"\']+\.m3u8[^\s"\']*', response.text)
+        return match.group(0) if match else None
+    except:
+        return None
 
-new_link = get_ksa_link()
+# Start the M3U content
+m3u_output = "#EXTM3U\n"
 
-if new_link:
-    # Create your Master M3U content
-    m3u_content = f"#EXTM3U\n#EXTINF:-1, KSA Sports 1\n{new_link}\n"
-    
-    # Save it to a file
-    with open("playlist.m3u", "w") as f:
-        f.write(m3u_content)
-    print("Playlist updated successfully.")
-else:
-    print("Could not find a new link.")
+for ch in channels:
+    print(f"Scraping {ch['name']}...")
+    fresh_link = get_live_link(ch['url'])
+    if fresh_link:
+        m3u_output += f"#EXTINF:-1, {ch['name']}\n{fresh_link}\n"
+
+# Save to your playlist file
+with open("playlist.m3u", "w") as f:
+    f.write(m3u_output)
